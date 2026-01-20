@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "ChessSignature"
 include(":app")
- 
+include(":composeApp")
