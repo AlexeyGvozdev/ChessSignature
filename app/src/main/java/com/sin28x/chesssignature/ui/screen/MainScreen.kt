@@ -420,21 +420,61 @@ fun MovesListWithCopy(
                     modifier = Modifier.padding(8.dp),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    items(moves.chunked(2).size) { index ->
-                        val movePair = moves.chunked(2)[index]
-                        val moveNumber = index + 1
+                    // Группируем ходы по номерам
+                    val groupedMoves = moves.groupBy { it.moveNumber }
+                    items(groupedMoves.keys.sorted()) { moveNumber ->
+                        val movesForNumber = groupedMoves[moveNumber] ?: emptyList()
+                        val whiteMove = movesForNumber.find { it.color == PieceColor.WHITE }
+                        val blackMove = movesForNumber.find { it.color == PieceColor.BLACK }
                         
-                        MovePairItem(
+                        MovePairItemDisplay(
                             moveNumber = moveNumber,
-                            whiteMove = movePair[0],
-                            blackMove = movePair.getOrNull(1),
-                            onWhiteClick = { /* TODO: Обработка клика */ },
-                            onBlackClick = { /* TODO: Обработка клика */ }
+                            whiteMove = whiteMove,
+                            blackMove = blackMove
                         )
                     }
                 }
             }
         }
+    }
+}
+
+/**
+ * Компонент для отображения пары ходов (белые и черные) одного номера
+ */
+@Composable
+private fun MovePairItemDisplay(
+    moveNumber: Int,
+    whiteMove: Move?,
+    blackMove: Move?
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // Номер хода
+        Text(
+            text = "$moveNumber.",
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.width(40.dp)
+        )
+        
+        // Ход белых
+        Text(
+            text = whiteMove?.toRussianNotation() ?: "...",
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.weight(1f)
+        )
+        
+        // Ход черных
+        Text(
+            text = blackMove?.toRussianNotation() ?: "",
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 

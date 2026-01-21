@@ -114,7 +114,10 @@ class GameViewModel : ViewModel() {
      */
     fun setStartingColor(color: PieceColor) {
         _gameState.update { currentState ->
-            currentState.copy(startingColor = color)
+            currentState.copy(
+                startingColor = color,
+                isWhiteTurn = (color == PieceColor.WHITE)
+            )
         }
     }
     
@@ -200,7 +203,7 @@ class GameViewModel : ViewModel() {
             currentState.copy(
                 moves = emptyList(),
                 currentInput = "",
-                isWhiteTurn = true,
+                isWhiteTurn = (currentState.startingColor == PieceColor.WHITE),
                 inputValidation = ValidationResult.Incomplete
             )
         }
