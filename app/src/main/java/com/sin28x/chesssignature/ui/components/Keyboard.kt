@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -155,23 +156,21 @@ fun SymbolKeyboard(
  * Полная шахматная клавиатура.
  * Объединяет все клавиатуры: координаты, фигуры и символы.
  *
- * @param onSquareClick Обработчик нажатия на клетку
- * @param onPieceClick Обработчик нажатия на фигуру
- * @param onSymbolClick Обработчик нажатия на символ
- * @param onDeleteClick Обработчик нажатия на удаление
+ * @param onKeyPressed Обработчик нажатия на любую клавишу
+ * @param onBackspace Обработчик нажатия на backspace
+ * @param onClear Обработчик нажатия на очистку
+ * @param onEnter Обработчик нажатия на ввод
  * @param modifier Модификатор для кастомизации
- * @param selectedPiece Выбранная фигура
- * @param deleteEnabled Активна ли кнопка удаления
+ * @param inputValidation Результат валидации текущего ввода
  */
 @Composable
 fun ChessKeyboard(
-    onSquareClick: (String) -> Unit,
-    onPieceClick: (String) -> Unit,
-    onSymbolClick: (String) -> Unit,
-    onDeleteClick: () -> Unit,
+    onKeyPressed: (String) -> Unit,
+    onBackspace: () -> Unit,
+    onClear: () -> Unit,
+    onEnter: () -> Unit,
     modifier: Modifier = Modifier,
-    selectedPiece: String? = null,
-    deleteEnabled: Boolean = true
+    inputValidation: com.sin28x.chesssignature.model.ValidationResult = com.sin28x.chesssignature.model.ValidationResult.Incomplete
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -183,25 +182,66 @@ fun ChessKeyboard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            // Клавиатура координат
-            CoordinateKeyboard(
-                onSquareClick = onSquareClick
+            Text(
+                text = "Клавиатура:",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = 2.dp)
             )
             
-            // Клавиатура фигур
-            PieceKeyboard(
-                onPieceClick = onPieceClick,
-                selectedPiece = selectedPiece
-            )
+            // Первый ряд: Рокировки и взятие
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                SymbolButton(
+                    symbol = "0-0",
+                    onClick = { onKeyPressed("0-0") },
+                    modifier = Modifier.weight(1f)
+                )
+                SymbolButton(
+                    symbol = "0-0-0",
+                    onClick = { onKeyPressed("0-0-0") },
+                    modifier = Modifier.weight(1f)
+                )
+                SymbolButton(
+                    symbol = "x",
+                    onClick = { onKeyPressed("x") },
+                    modifier = Modifier.weight(1f)
+                )
+            }
             
-            // Клавиатура символов
-            SymbolKeyboard(
-                onSymbolClick = onSymbolClick,
-                onDeleteClick = onDeleteClick,
-                deleteEnabled = deleteEnabled
-            )
+            // Второй ряд: Управление
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                // Backspace
+                DeleteButton(
+                    onClick = onBackspace,
+                    enabled = true,
+                    modifier = Modifier.weight(1f)
+                )
+                
+                // Очистить
+                ActionButton(
+                    text = "Очистить",
+                    onClick = onClear,
+                    enabled = true,
+                    modifier = Modifier.weight(1f)
+                )
+                
+                // Применить (добавить ход)
+                ActionButton(
+                    text = "Применить",
+                    onClick = onEnter,
+                    enabled = inputValidation is com.sin28x.chesssignature.model.ValidationResult.Valid,
+                    primary = true,
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
     }
 }
