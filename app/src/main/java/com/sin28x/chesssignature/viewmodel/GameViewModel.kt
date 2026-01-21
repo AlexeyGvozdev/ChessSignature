@@ -47,14 +47,19 @@ class GameViewModel : ViewModel() {
     }
     
     /**
-     * Добавляет клетку к текущему вводу.
+     * Добавляет клетку к текущему вводу с учетом выбранной фигуры.
      * Используется при клике на клетку доски.
      *
      * @param square Клетка доски для добавления к вводу
      */
     fun addSquare(square: ChessSquare) {
-        val currentInput = _gameState.value.currentInput
-        val newInput = currentInput + square.toString()
+        val currentState = _gameState.value
+        val currentInput = currentState.currentInput
+        
+        // Добавляем обозначение фигуры (если не пешка) + координаты клетки
+        val pieceNotation = currentState.selectedPiece.toRussianNotation()
+        val newInput = currentInput + pieceNotation + square.toString()
+        
         updateInput(newInput)
     }
     
