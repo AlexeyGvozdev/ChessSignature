@@ -108,6 +108,49 @@ class GameViewModel : ViewModel() {
     }
     
     /**
+     * Устанавливает начальный цвет для игры.
+     *
+     * @param color Цвет для первого хода
+     */
+    fun setStartingColor(color: PieceColor) {
+        _gameState.update { currentState ->
+            currentState.copy(startingColor = color)
+        }
+    }
+    
+    /**
+     * Добавляет символ к текущему вводу.
+     *
+     * @param char Символ для добавления
+     */
+    fun addCharacter(char: String) {
+        val currentInput = _gameState.value.currentInput
+        val newInput = currentInput + char
+        updateInput(newInput)
+    }
+    
+    /**
+     * Удаляет последний символ из ввода
+     */
+    fun deleteLastCharacter() {
+        deleteLastSymbol()
+    }
+    
+    /**
+     * Очищает текущий ввод.
+     */
+    fun clearCurrentInput() {
+        clearInput()
+    }
+    
+    /**
+     * Отправляет текущий ход (добавляет его в список)
+     */
+    fun submitMove() {
+        addMove()
+    }
+    
+    /**
      * Добавляет текущий ввод как новый ход в список ходов.
      * Ход добавляется только если валидация успешна.
      * После добавления ввод очищается и ход переходит к другому цвету.

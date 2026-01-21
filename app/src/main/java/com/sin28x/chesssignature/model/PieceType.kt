@@ -35,6 +35,18 @@ enum class PieceType {
         KING -> "K"
     }
 
+    /**
+     * Возвращает отображаемое название фигуры для UI
+     */
+    fun toDisplayString(): String = when (this) {
+        PAWN -> "Пешка"
+        KNIGHT -> "Конь"
+        BISHOP -> "Слон"
+        ROOK -> "Ладья"
+        QUEEN -> "Ферзь"
+        KING -> "Король"
+    }
+
     companion object {
         /**
          * Создает PieceType из русской нотации

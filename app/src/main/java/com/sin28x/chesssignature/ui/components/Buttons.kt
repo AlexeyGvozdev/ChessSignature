@@ -137,14 +137,14 @@ fun SymbolButton(
 ) {
     OutlinedButton(
         onClick = onClick,
-        modifier = modifier.size(56.dp),
+        modifier = modifier.size(width = 120.dp, height = 48.dp),
         enabled = enabled,
         shape = RoundedCornerShape(8.dp),
         border = BorderStroke(
             width = 1.dp,
-            color = if (enabled) 
-                MaterialTheme.colorScheme.outline 
-            else 
+            color = if (enabled)
+                MaterialTheme.colorScheme.outline
+            else
                 MaterialTheme.colorScheme.outline.copy(alpha = 0.38f)
         ),
         contentPadding = PaddingValues(0.dp),
@@ -157,7 +157,7 @@ fun SymbolButton(
     ) {
         Text(
             text = symbol,
-            style = ChessTypography.keyboardPiece,
+            style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Medium
         )
     }
@@ -183,9 +183,10 @@ fun ActionButton(
     if (primary) {
         Button(
             onClick = onClick,
-            modifier = modifier,
+            modifier = modifier.size(width = 120.dp, height = 48.dp),
             enabled = enabled,
             shape = RoundedCornerShape(8.dp),
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
@@ -195,21 +196,22 @@ fun ActionButton(
         ) {
             Text(
                 text = text,
-                style = MaterialTheme.typography.labelLarge,
+                style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Medium
             )
         }
     } else {
         OutlinedButton(
             onClick = onClick,
-            modifier = modifier,
+            modifier = modifier.size(width = 120.dp, height = 48.dp),
             enabled = enabled,
             shape = RoundedCornerShape(8.dp),
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
             border = BorderStroke(
                 width = 1.dp,
-                color = if (enabled) 
-                    MaterialTheme.colorScheme.outline 
-                else 
+                color = if (enabled)
+                    MaterialTheme.colorScheme.outline
+                else
                     MaterialTheme.colorScheme.outline.copy(alpha = 0.38f)
             ),
             colors = ButtonDefaults.outlinedButtonColors(
@@ -221,7 +223,7 @@ fun ActionButton(
         ) {
             Text(
                 text = text,
-                style = MaterialTheme.typography.labelLarge,
+                style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Medium
             )
         }
@@ -243,14 +245,14 @@ fun DeleteButton(
 ) {
     OutlinedButton(
         onClick = onClick,
-        modifier = modifier.size(56.dp),
+        modifier = modifier.size(width = 120.dp, height = 48.dp),
         enabled = enabled,
         shape = RoundedCornerShape(8.dp),
         border = BorderStroke(
             width = 1.dp,
-            color = if (enabled) 
-                MaterialTheme.colorScheme.error 
-            else 
+            color = if (enabled)
+                MaterialTheme.colorScheme.error
+            else
                 MaterialTheme.colorScheme.error.copy(alpha = 0.38f)
         ),
         contentPadding = PaddingValues(0.dp),
@@ -263,7 +265,7 @@ fun DeleteButton(
     ) {
         Text(
             text = "⌫",
-            style = ChessTypography.keyboardPiece,
+            style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Medium
         )
     }
