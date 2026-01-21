@@ -154,23 +154,20 @@ fun SymbolKeyboard(
 
 /**
  * Полная шахматная клавиатура.
- * Объединяет все клавиатуры: координаты, фигуры и символы.
+ * Объединяет специальные символы и управление.
+ * Ходы добавляются автоматически при достижении валидного состояния.
  *
  * @param onKeyPressed Обработчик нажатия на любую клавишу
  * @param onBackspace Обработчик нажатия на backspace
  * @param onClear Обработчик нажатия на очистку
- * @param onEnter Обработчик нажатия на ввод
  * @param modifier Модификатор для кастомизации
- * @param inputValidation Результат валидации текущего ввода
  */
 @Composable
 fun ChessKeyboard(
     onKeyPressed: (String) -> Unit,
     onBackspace: () -> Unit,
     onClear: () -> Unit,
-    onEnter: () -> Unit,
-    modifier: Modifier = Modifier,
-    inputValidation: com.sin28x.chesssignature.model.ValidationResult = com.sin28x.chesssignature.model.ValidationResult.Incomplete
+    modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -191,7 +188,7 @@ fun ChessKeyboard(
                 modifier = Modifier.padding(bottom = 2.dp)
             )
             
-            // Первый ряд: Рокировки и взятие
+            // Первый ряд: Рокировки
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -204,11 +201,6 @@ fun ChessKeyboard(
                 SymbolButton(
                     symbol = "0-0-0",
                     onClick = { onKeyPressed("0-0-0") },
-                    modifier = Modifier.weight(1f)
-                )
-                SymbolButton(
-                    symbol = "x",
-                    onClick = { onKeyPressed("x") },
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -230,15 +222,6 @@ fun ChessKeyboard(
                     text = "Очистить",
                     onClick = onClear,
                     enabled = true,
-                    modifier = Modifier.weight(1f)
-                )
-                
-                // Применить (добавить ход)
-                ActionButton(
-                    text = "Применить",
-                    onClick = onEnter,
-                    enabled = inputValidation is com.sin28x.chesssignature.model.ValidationResult.Valid,
-                    primary = true,
                     modifier = Modifier.weight(1f)
                 )
             }

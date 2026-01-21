@@ -33,16 +33,32 @@ class GameViewModel : ViewModel() {
     
     /**
      * Обновляет текущий ввод и валидирует его.
+     * Если ход становится валидным, автоматически добавляет его в список.
      *
      * @param input Новая строка ввода хода (например, "e4", "Кf3", "0-0")
      */
     fun updateInput(input: String) {
         _gameState.update { currentState ->
             val validation = validateInput(input, currentState)
-            currentState.copy(
+            val newState = currentState.copy(
                 currentInput = input,
                 inputValidation = validation
             )
+            
+            // Автоматически добавляем ход, если он валиден
+            if (validation is ValidationResult.Valid) {
+                val move = parseMove(input, newState)
+                if (move != null) {
+                    return@update newState.copy(
+                        moves = newState.moves + move,
+                        currentInput = "",
+                        isWhiteTurn = !newState.isWhiteTurn,
+                        inputValidation = ValidationResult.Incomplete
+                    )
+                }
+            }
+            
+            newState
         }
     }
     
@@ -234,15 +250,28 @@ class GameViewModel : ViewModel() {
         }
         
         // Базовая валидация формата хода
-        // Примеры: e4, Кf3, Л:d5, Фd1:h5+, 0-0, 0-0-0
+        // Примеры валидных ходов:
+        // - e4 (пешка на e4)
+        // - e:d5 (пешка с вертикали e берет на d5)
+        // - Кf3 (конь на f3)
+        // - Кg1f3 (конь с g1 на f3)
+        // - Л:d5 (ладья берет на d5)
+        // - Фd1:h5+ (ферзь с d1 берет на h5 с шахом)
+        // - e8=Ф (превращение пешки в ферзя)
         
-        val movePattern = Regex("""^(Кр|Ф|Л|С|К)?([a-h][1-8])?:?([a-h][1-8])([+#])?$""")
+        // Для фигур (не пешек): (Кр|Ф|Л|С|К)([a-h][1-8])?:?([a-h][1-8])(=[КФЛС])?([+#])?
+        val piecePattern = Regex("""^(Кр|Ф|Л|С|К)([a-h][1-8])?:?([a-h][1-8])(=[КФЛС])?([+#])?$""")
         
-        return if (movePattern.matches(input)) {
+        // Для пешек: ([a-h])?:?([a-h][1-8])(=[КФЛС])?([+#])?
+        // Пешка может иметь только одну букву (вертикаль) перед взятием, но не полную клетку
+        val pawnPattern = Regex("""^([a-h])?:?([a-h][1-8])(=[КФЛС])?([+#])?$""")
+        
+        return if (piecePattern.matches(input) || pawnPattern.matches(input)) {
             ValidationResult.Valid
         } else {
             // Проверяем, может ли это быть началом валидного хода
-            val partialPattern = Regex("""^(Кр|Ф|Л|С|К)?([a-h]?[1-8]?)?:?([a-h]?[1-8]?)?([+#])?$""")
+            // Разрешаем частичный ввод для удобства пользователя
+            val partialPattern = Regex("""^(Кр|Ф|Л|С|К)?([a-h]?[1-8]?)?:?([a-h]?[1-8]?)?(=[КФЛС]?)?([+#])?$""")
             if (partialPattern.matches(input)) {
                 ValidationResult.Incomplete
             } else {
@@ -283,14 +312,21 @@ class GameViewModel : ViewModel() {
         }
         
         // Парсинг обычного хода
-        val movePattern = Regex("""^(Кр|Ф|Л|С|К)?([a-h][1-8])?(:)?([a-h][1-8])([+#])?$""")
+        val movePattern = Regex("""^(Кр|Ф|Л|С|К)?([a-h][1-8])?(:)?([a-h][1-8])(=[КФЛС])?([+#])?$""")
         val match = movePattern.matchEntire(input) ?: return null
         
         val pieceNotation = match.groupValues[1]
         val fromSquare = match.groupValues[2]
         val isCapture = match.groupValues[3].isNotEmpty()
         val toSquare = match.groupValues[4]
-        val checkSymbol = match.groupValues[5]
+        val promotionSymbol = match.groupValues[5]
+        val checkSymbol = match.groupValues[6]
+        
+        // Парсим превращение пешки
+        val promotion = if (promotionSymbol.isNotEmpty()) {
+            val promotionPiece = promotionSymbol.removePrefix("=")
+            PieceType.fromRussianNotation(promotionPiece)
+        } else null
         
         val piece = if (pieceNotation.isEmpty()) {
             PieceType.PAWN
@@ -310,6 +346,7 @@ class GameViewModel : ViewModel() {
             isCapture = isCapture,
             isCheck = checkSymbol == "+",
             isCheckmate = checkSymbol == "#",
+            promotion = promotion,
             moveNumber = state.getCurrentMoveNumber(),
             color = state.getCurrentColor()
         )

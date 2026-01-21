@@ -78,24 +78,16 @@ fun MainScreen(
                         .aspectRatio(1f)
                 )
                 
-                // 4. Клавиатура специальных символов
+                // 4. Клавиатура (рокировки и управление)
+                // Ходы добавляются автоматически при достижении валидного состояния
                 ChessKeyboard(
                     onKeyPressed = { viewModel.addCharacter(it) },
                     onBackspace = { viewModel.deleteLastCharacter() },
                     onClear = { viewModel.clearCurrentInput() },
-                    onEnter = { viewModel.submitMove() },
-                    inputValidation = gameState.inputValidation,
                     modifier = Modifier.fillMaxWidth()
                 )
                 
-                // 5. Текущий ход с индикатором валидации
-                CurrentMoveDisplay(
-                    currentInput = gameState.currentInput,
-                    validation = gameState.inputValidation,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                
-                // 6. Список ходов с кнопкой копирования
+                // 5. Список ходов с кнопками управления
                 val context = LocalContext.current
                 MovesListWithCopy(
                     moves = gameState.moves,
@@ -111,6 +103,22 @@ fun MainScreen(
                                     message = "Нотация скопирована в буфер обмена"
                                 )
                             }
+                        }
+                    },
+                    onDeleteLastClick = {
+                        viewModel.deleteLastMove()
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = "Последний ход удален"
+                            )
+                        }
+                    },
+                    onClearAllClick = {
+                        viewModel.clearAllMoves()
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = "Все ходы очищены"
+                            )
                         }
                     },
                     modifier = Modifier
@@ -357,33 +365,38 @@ fun CurrentMoveDisplay(
 }
 
 /**
- * Компонент для отображения списка ходов с кнопкой копирования
+ * Компонент для отображения списка ходов с кнопками управления
  */
 @Composable
 fun MovesListWithCopy(
     moves: List<Move>,
     onCopyClick: () -> Unit,
+    onDeleteLastClick: () -> Unit,
+    onClearAllClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
-        // Заголовок с кнопкой копирования
+        // Заголовок
+        Text(
+            text = "Список ходов:",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        
+        // Кнопки управления
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(
-                text = "Список ходов:",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            
+            // Кнопка "Копировать"
             Button(
                 onClick = onCopyClick,
                 enabled = moves.isNotEmpty(),
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+                modifier = Modifier.weight(1f)
             ) {
                 Text(
                     text = "📋",
@@ -391,6 +404,39 @@ fun MovesListWithCopy(
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text("Копировать")
+            }
+            
+            // Кнопка "Удалить последний"
+            OutlinedButton(
+                onClick = onDeleteLastClick,
+                enabled = moves.isNotEmpty(),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = "🗑️",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text("Удалить")
+            }
+            
+            // Кнопка "Очистить всё"
+            OutlinedButton(
+                onClick = onClearAllClick,
+                enabled = moves.isNotEmpty(),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.error
+                ),
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = "🧹",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text("Очистить")
             }
         }
         
