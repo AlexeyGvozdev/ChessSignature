@@ -56,11 +56,14 @@ fun MainScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
                 
-                // 2. Селектор фигур (Пешка, Конь, Слон, Ладья, Ферзь, Король)
-                PieceSelector(
+                // 2. Селектор фигур и рокировок (Пешка, Конь, Слон, Ладья, Ферзь, Король, 0-0, 0-0-0)
+                PieceSelectorWithCastling(
                     selectedPiece = gameState.selectedPiece,
                     onPieceSelected = { piece ->
                         viewModel.selectPiece(piece)
+                    },
+                    onCastlingClick = { castling ->
+                        viewModel.addCharacter(castling)
                     },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -78,16 +81,7 @@ fun MainScreen(
                         .aspectRatio(1f)
                 )
                 
-                // 4. Клавиатура (рокировки и управление)
-                // Ходы добавляются автоматически при достижении валидного состояния
-                ChessKeyboard(
-                    onKeyPressed = { viewModel.addCharacter(it) },
-                    onBackspace = { viewModel.deleteLastCharacter() },
-                    onClear = { viewModel.clearCurrentInput() },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                
-                // 5. Список ходов с кнопками управления
+                // 4. Список ходов с кнопками управления
                 val context = LocalContext.current
                 MovesListWithCopy(
                     moves = gameState.moves,
@@ -171,12 +165,13 @@ fun ColorSelector(
 }
 
 /**
- * Компонент для выбора типа фигуры
+ * Компонент для выбора типа фигуры и рокировок
  */
 @Composable
-fun PieceSelector(
+fun PieceSelectorWithCastling(
     selectedPiece: PieceType,
     onPieceSelected: (PieceType) -> Unit,
+    onCastlingClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
@@ -214,6 +209,38 @@ fun PieceSelector(
                     label = { Text(piece.toDisplayString()) },
                     modifier = Modifier.weight(1f)
                 )
+            }
+        }
+        
+        // Третий ряд: Рокировки
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // Короткая рокировка
+            Button(
+                onClick = { onCastlingClick("0-0") },
+                modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            ) {
+                Text("0-0")
+            }
+            
+            // Длинная рокировка
+            Button(
+                onClick = { onCastlingClick("0-0-0") },
+                modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            ) {
+                Text("0-0-0")
             }
         }
     }
